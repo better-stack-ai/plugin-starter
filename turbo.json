@@ -5,10 +5,12 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": ["BASE_URL", "NEXT_PUBLIC_BASE_URL"]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": ["^lint"],
+      "env": ["BASE_URL", "NEXT_PUBLIC_BASE_URL"]
     },
     "typecheck": {
       "outputs": [".tsbuildinfo", "dist/**"],
@@ -29,7 +31,8 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["BASE_URL", "NEXT_PUBLIC_BASE_URL"]
     }
   }
 }

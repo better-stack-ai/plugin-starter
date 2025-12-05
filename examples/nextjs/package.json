@@ -8,8 +8,8 @@
     "build": "next build",
     "start": "next start",
     "start:e2e": "rm -rf .next && rm -rf node_modules && pnpm install && pnpm build && NODE_ENV=test next start",
-    "lint": "next lint",
-    "lint:fix": "next lint --fix",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

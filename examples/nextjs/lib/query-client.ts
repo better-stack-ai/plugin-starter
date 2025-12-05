@@ -1,5 +1,4 @@
 import { QueryClient, isServer } from "@tanstack/react-query"
-import { cache } from "react"
 
 function makeQueryClient() {
   return new QueryClient({
@@ -13,7 +12,7 @@ function makeQueryClient() {
       dehydrate: {
         // Include both successful and error states to avoid refetching on the client
         // This prevents loading states when there's an error in prefetched data
-        shouldDehydrateQuery: (query) => {
+        shouldDehydrateQuery: () => {
             return true
         }
       }

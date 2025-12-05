@@ -29,6 +29,7 @@ export const config = [
   {
     ignores: [
       "dist/**",
+      ".next/**",
       "**/__tests__/**",
       "**/*.test.ts",
       "**/*.test.tsx",
