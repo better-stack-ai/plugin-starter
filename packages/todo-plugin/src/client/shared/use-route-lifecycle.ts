@@ -38,11 +38,11 @@ export function useRouteLifecycle<TRouteName extends string>({
       // Handle Promise if returned
       if (result instanceof Promise) {
         result.catch((error) => {
-          console.error("Error in beforeRenderHook:", error);
+          console.error(`Error in beforeRenderHook in ${routeName}:`, error);
         });
       }
     }
-  }, [beforeRenderHook, context, overrides]);
+  }, [beforeRenderHook, context, overrides, routeName]);
 
   return { overrides };
 }
