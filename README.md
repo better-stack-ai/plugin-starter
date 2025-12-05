@@ -6,11 +6,13 @@ A monorepo template for creating plugins for [Better-Stack](https://github.com/b
 
 This repository provides:
 - A complete plugin development environment
-- Example plugin (`todo-plugin`) demonstrating best practices
+- Starter plugin (`todo-plugin`) that you'll modify and publish to npm
 - Shared UI components package
 - Next.js example application showing plugin integration
 - E2E testing setup with Playwright
 - TypeScript configuration and ESLint setup
+
+**Getting Started:** Clone this repository, modify the `todo-plugin` package to match your needs, update the package name in `package.json`, and publish it to npm under your own account.
 
 ## Getting Started
 
@@ -54,13 +56,13 @@ The example Next.js application will be available at `http://localhost:3000`.
 ```
 plugin-starter/
 ├── packages/
-│   ├── todo-plugin/          # Example plugin (reference implementation)
+│   ├── todo-plugin/          # Your plugin (modify this and publish to npm)
 │   │   ├── src/
 │   │   │   ├── api/          # Backend plugin (API endpoints)
 │   │   │   ├── client/       # Client plugin (React components, routes)
 │   │   │   ├── schema.ts     # Database schema definition
 │   │   │   └── types.ts      # TypeScript types
-│   │   └── package.json
+│   │   └── package.json      # Update name here before publishing
 │   ├── ui/                    # Shared UI components (shadcn/ui)
 │   └── eslint-config/         # Shared ESLint configuration
 ├── examples/
@@ -69,24 +71,17 @@ plugin-starter/
 └── package.json               # Root package.json with workspace scripts
 ```
 
-## Tutorial: Building a Better-Stack Plugin
+## Tutorial: Building Your Better-Stack Plugin
 
-This tutorial walks you through creating a complete Better-Stack plugin. We'll use the `todo-plugin` as a reference, but you can follow these steps to create your own plugin.
+This tutorial walks you through customizing the `todo-plugin` to build your own Better-Stack plugin. You'll modify the existing plugin and publish it to npm under your own account.
 
-### Step 1: Create Your Plugin Package
+### Step 1: Update Package Configuration
 
-Create a new directory in `packages/` for your plugin:
-
-```bash
-mkdir packages/my-plugin
-cd packages/my-plugin
-```
-
-Initialize a `package.json`:
+First, update `packages/todo-plugin/package.json` with your own package name and npm account:
 
 ```json
 {
-  "name": "@btst/my-plugin",
+  "name": "@your-username/your-plugin-name",
   "version": "0.0.1",
   "type": "module",
   "scripts": {
@@ -118,24 +113,26 @@ Initialize a `package.json`:
 }
 ```
 
+**Note:** Make sure to update all references to `@btst/todo-plugin` throughout the codebase to match your new package name.
+
 ### Step 2: Define Your Database Schema
 
-Create `src/schema.ts` to define your database models:
+Modify `packages/todo-plugin/src/schema.ts` to define your database models. The existing file shows how to define models:
 
 ```typescript
 import { createDbPlugin } from "@btst/stack/plugins/api"
 
-export const myPluginSchema = createDbPlugin("my-plugin", {
-  item: {
-    modelName: "item",
+export const todoPluginSchema = createDbPlugin("todo-plugin", {
+  todo: {
+    modelName: "todo",
     fields: {
-      name: {
+      title: {
         type: "string",
         required: true
       },
-      description: {
-        type: "string",
-        required: false
+      completed: {
+        type: "boolean",
+        defaultValue: false
       },
       createdAt: {
         type: "date",
@@ -146,112 +143,113 @@ export const myPluginSchema = createDbPlugin("my-plugin", {
 })
 ```
 
-### Step 3: Create TypeScript Types
+Update the plugin name and model definitions to match your use case.
 
-Create `src/types.ts`:
+### Step 3: Update TypeScript Types
+
+Modify `packages/todo-plugin/src/types.ts` to match your data models:
 
 ```typescript
-export type Item = {
+export type Todo = {
   id: string
-  name: string
-  description?: string
+  title: string
+  completed: boolean
   createdAt: Date
 }
 ```
 
 ### Step 4: Build the Backend Plugin
 
-Create `src/api/backend.ts`:
+Modify `packages/todo-plugin/src/api/backend.ts`:
 
 ```typescript
 import { type Adapter, defineBackendPlugin, createEndpoint } from "@btst/stack/plugins/api"
 import { z } from "zod"
-import { myPluginSchema as dbSchema } from "../schema"
-import type { Item } from "../types"
+import { todoPluginSchema as dbSchema } from "../schema"
+import type { Todo } from "../types"
 
 // Validation schemas
-export const createItemSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  description: z.string().optional()
+export const createTodoSchema = z.object({
+  title: z.string().min(1, "Title is required"),
 })
 
-export const updateItemSchema = z.object({
-  name: z.string().min(1).optional(),
-  description: z.string().optional()
+export const updateTodoSchema = z.object({
+  title: z.string().min(1).optional(),
+  completed: z.boolean().optional()
 })
 
 /**
  * Backend plugin - provides API endpoints
  */
-export const myPluginBackendPlugin = defineBackendPlugin({
-  name: "my-plugin",
+export const todoPluginBackendPlugin = defineBackendPlugin({
+  name: "todo-plugin",
   dbPlugin: dbSchema,
   
   routes: (adapter: Adapter) => {
-    // GET /items - List all items
-    const listItems = createEndpoint(
-      "/items",
+    // GET /todos - List all todos
+    const listTodos = createEndpoint(
+      "/todos",
       { method: "GET" },
       async () => {
-        const items = await adapter.findMany<Item>({
-          model: "item",
+        const todos = await adapter.findMany<Todo>({
+          model: "todo",
           sortBy: {
             field: "createdAt",
             direction: "desc"
           }
         })
-        return items || []
+        return todos || []
       }
     )
 
-    // POST /items - Create a new item
-    const createItem = createEndpoint(
-      "/items",
+    // POST /todos - Create a new todo
+    const createTodo = createEndpoint(
+      "/todos",
       {
         method: "POST",
-        body: createItemSchema
+        body: createTodoSchema
       },
       async (ctx) => {
-        const { name, description } = ctx.body
-        const newItem = await adapter.create<Item>({
-          model: "item",
+        const { title } = ctx.body
+        const newTodo = await adapter.create<Todo>({
+          model: "todo",
           data: {
-            name,
-            description,
+            title,
+            completed: false,
             createdAt: new Date()
           }
         })
-        return newItem
+        return newTodo
       }
     )
 
-    // PUT /items/:id - Update an item
-    const updateItem = createEndpoint(
-      "/items/:id",
+    // PUT /todos/:id - Update a todo
+    const updateTodo = createEndpoint(
+      "/todos/:id",
       {
         method: "PUT",
-        body: updateItemSchema
+        body: updateTodoSchema
       },
       async (ctx) => {
         const updated = await adapter.update({
-          model: "item",
+          model: "todo",
           where: [{ field: "id", value: ctx.params.id }],
           update: ctx.body
         })
         if (!updated) {
-          throw new Error("Item not found")
+          throw new Error("Todo not found")
         }
         return updated
       }
     )
 
-    // DELETE /items/:id - Delete an item
-    const deleteItem = createEndpoint(
-      "/items/:id",
+    // DELETE /todos/:id - Delete a todo
+    const deleteTodo = createEndpoint(
+      "/todos/:id",
       { method: "DELETE" },
       async (ctx) => {
         await adapter.delete({
-          model: "item",
+          model: "todo",
           where: [{ field: "id", value: ctx.params.id }]
         })
         return { success: true }
@@ -259,34 +257,30 @@ export const myPluginBackendPlugin = defineBackendPlugin({
     )
 
     return {
-      listItems,
-      createItem,
-      updateItem,
-      deleteItem
+      listTodos,
+      createTodo,
+      updateTodo,
+      deleteTodo
     } as const
   }
 })
 
-export type MyPluginApiRouter = ReturnType<typeof myPluginBackendPlugin.routes>
+export type TodoPluginApiRouter = ReturnType<typeof todoPluginBackendPlugin.routes>
 ```
 
-Create `src/api/index.ts`:
-
-```typescript
-export * from "./backend"
-```
+The `src/api/index.ts` file already exports everything you need.
 
 ### Step 5: Build the Client Plugin
 
-Create `src/client/client.tsx`:
+Modify `packages/todo-plugin/src/client/client.tsx`:
 
 ```typescript
 import { createApiClient, defineClientPlugin, createRoute } from "@btst/stack/plugins/client"
 import type { QueryClient } from "@tanstack/react-query"
-import type { MyPluginApiRouter } from "../api/backend"
+import type { TodoPluginApiRouter } from "../api/backend"
 import { lazy } from "react"
 
-export interface MyPluginClientConfig {
+export interface TodoPluginClientConfig {
   queryClient: QueryClient
   apiBaseURL: string
   apiBasePath: string
@@ -296,19 +290,19 @@ export interface MyPluginClientConfig {
 }
 
 // SSR loader for prefetching data
-function itemsLoader(config: MyPluginClientConfig) {
+function todosLoader(config: TodoPluginClientConfig) {
   return async () => {
     if (typeof window === "undefined") {
       const { queryClient, apiBasePath, apiBaseURL } = config
       
       await queryClient.prefetchQuery({
-        queryKey: ["items"],
+        queryKey: ["todos"],
         queryFn: async () => {
-          const client = createApiClient<MyPluginApiRouter>({
+          const client = createApiClient<TodoPluginApiRouter>({
             baseURL: apiBaseURL,
             basePath: apiBasePath,
           })
-          const response = await client("/items", { method: "GET" })
+          const response = await client("/todos", { method: "GET" })
           return response.data
         },
       })
@@ -317,37 +311,37 @@ function itemsLoader(config: MyPluginClientConfig) {
 }
 
 // Meta generator for SEO
-function createItemsMeta(config: MyPluginClientConfig, path: string) {
+function createTodosMeta(config: TodoPluginClientConfig, path: string) {
   return () => {
     const { queryClient, siteBaseURL, siteBasePath } = config
-    const items = queryClient.getQueryData<any[]>(["items"]) ?? []
+    const todos = queryClient.getQueryData<any[]>(["todos"]) ?? []
     const fullUrl = `${siteBaseURL}${siteBasePath}${path}`
     
     return [
-      { name: "title", content: `${items.length} Items` },
-      { name: "description", content: `Manage ${items.length} items.` },
-      { property: "og:title", content: `${items.length} Items` },
+      { name: "title", content: `${todos.length} Todos` },
+      { name: "description", content: `Manage ${todos.length} todos.` },
+      { property: "og:title", content: `${todos.length} Todos` },
       { property: "og:url", content: fullUrl },
     ]
   }
 }
 
-export const myPluginClientPlugin = (config: MyPluginClientConfig) =>
+export const todoPluginClientPlugin = (config: TodoPluginClientConfig) =>
   defineClientPlugin({
-    name: "my-plugin",
+    name: "todo-plugin",
     
     routes: () => ({
-      itemsList: createRoute("/items", () => {
-        const ItemsListPageComponent = lazy(() =>
-          import("./pages/items-list").then((m) => ({
-            default: m.ItemsListPageComponent,
+      todosList: createRoute("/todos", () => {
+        const TodosListPageComponent = lazy(() =>
+          import("./pages/todos-list").then((m) => ({
+            default: m.TodosListPageComponent,
           }))
         )
         
         return {
-          PageComponent: ItemsListPageComponent,
-          loader: itemsLoader(config),
-          meta: createItemsMeta(config, "/items"),
+          PageComponent: TodosListPageComponent,
+          loader: todosLoader(config),
+          meta: createTodosMeta(config, "/todos"),
         }
       }),
     }),
@@ -355,7 +349,7 @@ export const myPluginClientPlugin = (config: MyPluginClientConfig) =>
     sitemap: async () => {
       return [
         { 
-          url: `${config.siteBaseURL}${config.siteBasePath}/items`, 
+          url: `${config.siteBaseURL}${config.siteBasePath}/todos`, 
           lastModified: new Date(), 
           priority: 0.7 
         },
@@ -364,80 +358,75 @@ export const myPluginClientPlugin = (config: MyPluginClientConfig) =>
   })
 ```
 
-Create `src/client/hooks.tsx`:
+Modify `packages/todo-plugin/src/client/hooks.tsx`:
 
 ```typescript
 "use client"
 import { createApiClient } from "@btst/stack/plugins/client"
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
-import type { MyPluginApiRouter } from "../api/backend"
+import type { TodoPluginApiRouter } from "../api/backend"
 
-export function useItems() {
-  const client = createApiClient<MyPluginApiRouter>({
+export function useTodos() {
+  const client = createApiClient<TodoPluginApiRouter>({
     baseURL: "/api/data"
   })
 
   return useSuspenseQuery({
-    queryKey: ["items"],
+    queryKey: ["todos"],
     queryFn: async () => {
-      const response = await client("/items", { method: "GET" })
+      const response = await client("/todos", { method: "GET" })
       return response.data
     }
   })
 }
 
-export function useCreateItem() {
-  const client = createApiClient<MyPluginApiRouter>({
+export function useCreateTodo() {
+  const client = createApiClient<TodoPluginApiRouter>({
     baseURL: "/api/data"
   })
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (data: { name: string; description?: string }) => {
-      const response = await client("@post/items", {
+    mutationFn: async (data: { title: string }) => {
+      const response = await client("@post/todos", {
         method: "POST",
         body: data
       })
       return response.data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] })
+      queryClient.invalidateQueries({ queryKey: ["todos"] })
     }
   })
 }
 ```
 
-Create `src/client/index.ts`:
-
-```typescript
-export * from "./client"
-export * from "./hooks"
-```
+The `src/client/index.ts` file already exports everything you need.
 
 ### Step 6: Create Page Components
 
-Create `src/client/pages/items-list/items-list-page.tsx`:
+Modify `packages/todo-plugin/src/client/pages/todos-list/todos-list-page.tsx`:
 
 ```typescript
 "use client"
 import { PageWrapper } from "../../shared/page-wrapper"
 import { PageHeader } from "../../shared/page-header"
-import { useItems, useCreateItem } from "../../hooks"
+import { useTodos, useCreateTodo } from "../../hooks"
 import { Button } from "@workspace/ui/components/button"
 
-export function ItemsListPageComponent() {
-  const { data: items } = useItems()
-  const createItem = useCreateItem()
+export function TodosListPageComponent() {
+  const { data: todos } = useTodos()
+  const createTodo = useCreateTodo()
 
   return (
     <PageWrapper>
-      <PageHeader title="Items" />
+      <PageHeader title="Todos" />
       <div className="space-y-4">
-        {items.map((item) => (
-          <div key={item.id}>{item.name}</div>
+        {todos.map((todo) => (
+          <div key={todo.id}>{todo.title}</div>
         ))}
-        <Button onClick={() => createItem.mutate({ name: "New Item" })}>
-          Add Item
+        <Button onClick={() => createTodo.mutate({ title: "New Todo" })}>
+          Add Todo
         </Button>
       </div>
     </PageWrapper>
@@ -447,18 +436,18 @@ export function ItemsListPageComponent() {
 
 ### Step 7: Add Styles
 
-Create `src/style.css`:
+Modify `packages/todo-plugin/src/style.css` to add your plugin-specific styles:
 
 ```css
 /* Your plugin-specific styles */
-.my-plugin-container {
+.todo-plugin-container {
   /* styles */
 }
 ```
 
 ### Step 8: Configure Build
 
-Create `build.config.ts`:
+The `packages/todo-plugin/build.config.ts` file is already configured:
 
 ```typescript
 import { defineBuildConfig } from "unbuild"
@@ -478,17 +467,19 @@ export default defineBuildConfig({
 
 ### Step 9: Integrate in Your App
 
+After publishing your plugin to npm, integrate it in your Better-Stack application:
+
 **Backend Integration** (`examples/nextjs/lib/better-stack.ts`):
 
 ```typescript
 import { betterStack } from "@btst/stack"
 import { createMemoryAdapter } from "@btst/adapter-memory"
-import { myPluginBackendPlugin } from "@btst/my-plugin/api"
+import { todoPluginBackendPlugin } from "@your-username/your-plugin-name/api"
 
 const { handler, dbSchema } = betterStack({
   basePath: "/api/data",
   plugins: {
-    "my-plugin": myPluginBackendPlugin
+    "todo-plugin": todoPluginBackendPlugin
   },
   adapter: (db) => createMemoryAdapter(db)({})
 })
@@ -500,12 +491,12 @@ export { handler, dbSchema }
 
 ```typescript
 import { createStackClient } from "@btst/stack"
-import { myPluginClientPlugin } from "@btst/my-plugin/client"
+import { todoPluginClientPlugin } from "@your-username/your-plugin-name/client"
 
 export const getStackClient = (queryClient: QueryClient) => {
   return createStackClient({
     plugins: {
-      "my-plugin": myPluginClientPlugin({
+      "todo-plugin": todoPluginClientPlugin({
         queryClient: queryClient,
         apiBaseURL: baseURL,
         apiBasePath: "/api/data",
@@ -520,20 +511,24 @@ export const getStackClient = (queryClient: QueryClient) => {
 **Add CSS** (`examples/nextjs/app/globals.css`):
 
 ```css
-@import "@btst/my-plugin/css";
+@import "@your-username/your-plugin-name/css";
 ```
 
-### Step 10: Build and Test
+### Step 10: Build and Publish
 
 ```bash
 # Build your plugin
-pnpm --filter @btst/my-plugin build
+pnpm --filter @your-username/your-plugin-name build
 
 # Run type checking
-pnpm --filter @btst/my-plugin typecheck
+pnpm --filter @your-username/your-plugin-name typecheck
 
 # Run linting
-pnpm --filter @btst/my-plugin lint
+pnpm --filter @your-username/your-plugin-name lint
+
+# Publish to npm (make sure you're logged in: npm login)
+cd packages/todo-plugin
+npm publish --access public
 ```
 
 ## Commands
@@ -549,15 +544,17 @@ pnpm --filter @btst/my-plugin lint
 
 ### Package-Specific Commands
 
-Build a specific package:
+Build your plugin:
 ```bash
-pnpm --filter @btst/todo-plugin build
+pnpm --filter @your-username/your-plugin-name build
 ```
 
-Run tests for a specific package:
+Run tests for your plugin:
 ```bash
-pnpm --filter @btst/todo-plugin test
+pnpm --filter @your-username/your-plugin-name test
 ```
+
+**Note:** Replace `@your-username/your-plugin-name` with your actual package name from `package.json`.
 
 ## Adding UI Components
 
@@ -587,11 +584,10 @@ import { Card } from "@workspace/ui/components/card"
 
 ### Importing Plugin Styles
 
-For every plugin, you need to import its CSS in your application's global CSS file:
+After publishing your plugin, import its CSS in your application's global CSS file:
 
 ```css
-@import "@btst/todo-plugin/css";
-@import "@btst/my-plugin/css";
+@import "@your-username/your-plugin-name/css";
 ```
 
 ### Tailwind Configuration
@@ -602,10 +598,10 @@ The project uses Tailwind CSS v4. Plugin styles are automatically included when 
 
 ### Unit Tests
 
-Plugins can include unit tests using Vitest:
+Your plugin includes unit tests using Vitest:
 
 ```bash
-pnpm --filter @btst/todo-plugin test
+pnpm --filter @your-username/your-plugin-name test
 ```
 
 ### E2E Tests
@@ -626,15 +622,17 @@ pnpm e2e:smoke
 6. **Error Handling**: Include error boundaries and loading states
 7. **Shared Components**: Use the `@workspace/ui` package for reusable UI
 
-## Example Plugin
+## Reference Implementation
 
-The `todo-plugin` package serves as a complete reference implementation. Study it to understand:
+The `todo-plugin` package is your starting point and serves as a complete reference implementation. Study it to understand:
 - Database schema definition
 - Backend API endpoints
 - Client-side React components
 - React Query hooks
 - Route configuration
 - SSR and meta generation
+
+Modify the `todo-plugin` to build your own plugin, then publish it to npm under your own account.
 
 ## License
 
