@@ -6,6 +6,9 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
+    "typecheck": "turbo --filter \"./packages/*\" typecheck",
+    "test": "turbo --filter \"./packages/*\" test",
+    "e2e:smoke": "turbo --filter \"./e2e\" e2e:smoke",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
@@ -13,7 +16,13 @@
     "@workspace/typescript-config": "workspace:*",
     "prettier": "^3.6.2",
     "turbo": "^2.5.5",
-    "typescript": "5.7.3"
+    "typescript": "catalog:"
+  },
+  "pnpm": {
+    "overrides": {
+      "@btst/stack": "catalog:",
+      "zod": "^4.0.0"
+    }
   },
   "packageManager": "pnpm@10.4.1",
   "engines": {

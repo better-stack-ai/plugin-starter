@@ -1,0 +1,69 @@
+{
+    "name": "@btst/todo-plugin",
+    "version": "0.0.1",
+    "type": "module",
+    "scripts": {
+        "build": "unbuild",
+        "dev": "unbuild --watch",
+        "typecheck": "tsc --project tsconfig.json --noEmit",
+        "lint": "eslint . --max-warnings 0",
+        "test": "vitest",
+        "test:run": "vitest run"
+    },
+    "sideEffects": ["./dist/style.css"],
+    "exports": {
+        "./css": "./dist/style.css",
+        "./api": {
+            "types": "./dist/api/index.d.ts",
+            "import": "./dist/api/index.mjs",
+            "require": "./dist/api/index.cjs",
+            "default": "./dist/api/index.mjs"
+        },
+        "./client": {
+            "types": "./dist/client/index.d.ts",
+            "import": "./dist/client/index.mjs",
+            "require": "./dist/client/index.cjs",
+            "default": "./dist/client/index.mjs"
+        }
+    },
+    "typesVersions": {
+        "*": {
+            "api": ["dist/api/index.d.ts"],
+            "client": ["dist/client/index.d.ts"]
+        }
+    },
+    "dependencies": {
+    },
+    "peerDependencies": {
+        "@btst/stack": "catalog:",
+        "@btst/yar": "^1.1.1",
+        "@radix-ui/react-checkbox": ">=1.0.0",
+        "@radix-ui/react-label": ">=2.0.0",
+        "@radix-ui/react-separator": ">=1.0.0",
+        "@radix-ui/react-slot": ">=1.0.0",
+        "class-variance-authority": ">=0.7.0",
+        "clsx": ">=2.0.0",
+        "lucide-react": ">=0.469.0",
+        "react": ">=18.0.0",
+        "react-dom": ">=18.0.0",
+        "sonner": ">=1.7.0",
+        "tailwind-merge": ">=2.0.0",
+        "@tanstack/react-query": ">=5.66.0",
+        "zod": ">=3.24.0"
+    },
+    "devDependencies": {
+        "@types/node": "^24.1.0",
+        "@types/react": "^19.2.1",
+        "@types/react-dom": "^19.2.1",
+        "@workspace/eslint-config": "workspace:*",
+        "@workspace/typescript-config": "workspace:*",
+        "@vitest/ui": "^2.1.8",
+        "eslint": "^9.32.0",
+        "rollup-plugin-preserve-directives": "^0.4.0",
+        "tsx": "^4.20.3",
+        "typescript": "catalog:",
+        "unbuild": "^3.5.0",
+        "vitest": "^2.1.8"
+    },
+    "packageManager": "pnpm@10.12.1"
+}

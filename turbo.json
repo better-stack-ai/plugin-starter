@@ -10,6 +10,20 @@
     "lint": {
       "dependsOn": ["^lint"]
     },
+    "typecheck": {
+      "outputs": [".tsbuildinfo", "dist/**"],
+      "cache": true
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"],
+      "cache": true
+    },
+    "e2e:smoke": {
+      "dependsOn": ["^build"],
+      "outputs": [],
+      "cache": false
+    },
     "check-types": {
       "dependsOn": ["^check-types"]
     },

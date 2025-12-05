@@ -1,0 +1,7 @@
+/* Scan this package's source files for Tailwind classes */
+@source ".";
+
+
+/* Scan UI package components (bundled with preserveModules at dist/ui/src) */
+@source "./ui/src";
+
