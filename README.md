@@ -6,13 +6,13 @@ A monorepo template for creating plugins for [Better-Stack](https://github.com/b
 
 This repository provides:
 - A complete plugin development environment
-- Starter plugin (`todo-plugin`) that you'll modify and publish to npm
+- Starter plugin (`plugin`) that you'll modify and publish to npm
 - Shared UI components package
 - Next.js example application showing plugin integration
 - E2E testing setup with Playwright
 - TypeScript configuration and ESLint setup
 
-**Getting Started:** Clone this repository, modify the `todo-plugin` package to match your needs, update the package name in `package.json`, and publish it to npm under your own account.
+**Getting Started:** Clone this repository, modify the `plugin` package to match your needs, update the package name in `package.json`, and publish it to npm under your own account.
 
 ## Getting Started
 
@@ -56,60 +56,34 @@ The example Next.js application will be available at `http://localhost:3000`.
 ```
 plugin-starter/
 ├── packages/
-│   ├── todo-plugin/          # Your plugin (modify this and publish to npm)
+│   ├── plugin/               # Your plugin (modify this and publish to npm)
 │   │   ├── src/
 │   │   │   ├── api/          # Backend plugin (API endpoints)
 │   │   │   ├── client/       # Client plugin (React components, routes)
 │   │   │   ├── schema.ts     # Database schema definition
 │   │   │   └── types.ts      # TypeScript types
 │   │   └── package.json      # Update name here before publishing
-│   ├── ui/                    # Shared UI components (shadcn/ui)
-│   └── eslint-config/         # Shared ESLint configuration
+│   ├── ui/                   # Shared UI components (shadcn/ui)
+│   └── eslint-config/        # Shared ESLint configuration
 ├── examples/
-│   └── nextjs/                # Next.js example app showing plugin usage
-├── e2e/                       # End-to-end tests
-└── package.json               # Root package.json with workspace scripts
+│   └── nextjs/               # Next.js example app showing plugin usage
+├── e2e/                      # End-to-end tests
+└── package.json              # Root package.json with workspace scripts
 ```
 
 ## Tutorial: Building Your Better-Stack Plugin
 
-This tutorial walks you through customizing the `todo-plugin` to build your own Better-Stack plugin. You'll modify the existing plugin and publish it to npm under your own account.
+This tutorial walks you through customizing the `plugin` to build your own Better-Stack plugin. You'll modify the existing plugin and publish it to npm under your own account.
 
 ### Step 1: Update Package Configuration
 
-First, update `packages/todo-plugin/package.json` with your own package name and npm account:
+First, update `packages/plugin/package.json` with your own package name and npm account:
 
 ```json
 {
   "name": "@your-username/your-plugin-name",
   "version": "0.0.1",
-  "type": "module",
-  "scripts": {
-    "build": "unbuild",
-    "dev": "unbuild --watch",
-    "typecheck": "tsc --project tsconfig.json --noEmit",
-    "lint": "eslint . --max-warnings 0"
-  },
-  "sideEffects": ["./dist/style.css"],
-  "exports": {
-    "./css": "./dist/style.css",
-    "./api": {
-      "types": "./dist/api/index.d.ts",
-      "import": "./dist/api/index.mjs",
-      "default": "./dist/api/index.mjs"
-    },
-    "./client": {
-      "types": "./dist/client/index.d.ts",
-      "import": "./dist/client/index.mjs",
-      "default": "./dist/client/index.mjs"
-    }
-  },
-  "peerDependencies": {
-    "@btst/stack": "catalog:",
-    "@tanstack/react-query": ">=5.66.0",
-    "react": ">=18.0.0",
-    "zod": ">=3.24.0"
-  }
+  ... rest of package.json
 }
 ```
 
@@ -117,7 +91,7 @@ First, update `packages/todo-plugin/package.json` with your own package name and
 
 ### Step 2: Define Your Database Schema
 
-Modify `packages/todo-plugin/src/schema.ts` to define your database models. The existing file shows how to define models:
+Modify `packages/plugin/src/schema.ts` to define your database models. The existing file shows how to define models:
 
 ```typescript
 import { createDbPlugin } from "@btst/stack/plugins/api"
@@ -147,7 +121,7 @@ Update the plugin name and model definitions to match your use case.
 
 ### Step 3: Update TypeScript Types
 
-Modify `packages/todo-plugin/src/types.ts` to match your data models:
+Modify `packages/plugin/src/types.ts` to match your data models:
 
 ```typescript
 export type Todo = {
@@ -160,7 +134,7 @@ export type Todo = {
 
 ### Step 4: Build the Backend Plugin
 
-Modify `packages/todo-plugin/src/api/backend.ts`:
+Modify `packages/plugin/src/api/backend.ts`:
 
 ```typescript
 import { type Adapter, defineBackendPlugin, createEndpoint } from "@btst/stack/plugins/api"
@@ -272,7 +246,7 @@ The `src/api/index.ts` file already exports everything you need.
 
 ### Step 5: Build the Client Plugin
 
-Modify `packages/todo-plugin/src/client/client.tsx`:
+Modify `packages/plugin/src/client/client.tsx`:
 
 ```typescript
 import { createApiClient, defineClientPlugin, createRoute } from "@btst/stack/plugins/client"
@@ -358,7 +332,7 @@ export const todoPluginClientPlugin = (config: TodoPluginClientConfig) =>
   })
 ```
 
-Modify `packages/todo-plugin/src/client/hooks.tsx`:
+Modify `packages/plugin/src/client/hooks.tsx`:
 
 ```typescript
 "use client"
@@ -405,7 +379,7 @@ The `src/client/index.ts` file already exports everything you need.
 
 ### Step 6: Create Page Components
 
-Modify `packages/todo-plugin/src/client/pages/todos-list/todos-list-page.tsx`:
+Modify `packages/plugin/src/client/pages/todos-list/todos-list-page.tsx`:
 
 ```typescript
 "use client"
@@ -436,7 +410,7 @@ export function TodosListPageComponent() {
 
 ### Step 7: Add Styles
 
-Modify `packages/todo-plugin/src/style.css` to add your plugin-specific styles:
+Modify `packages/plugin/src/style.css` to add your plugin-specific styles:
 
 ```css
 /* Your plugin-specific styles */
@@ -447,7 +421,7 @@ Modify `packages/todo-plugin/src/style.css` to add your plugin-specific styles:
 
 ### Step 8: Configure Build
 
-The `packages/todo-plugin/build.config.ts` file is already configured:
+The `packages/plugin/build.config.ts` file is already configured:
 
 ```typescript
 import { defineBuildConfig } from "unbuild"
@@ -527,7 +501,7 @@ pnpm --filter @your-username/your-plugin-name typecheck
 pnpm --filter @your-username/your-plugin-name lint
 
 # Publish to npm (make sure you're logged in: npm login)
-cd packages/todo-plugin
+cd packages/plugin
 npm publish --access public
 ```
 
@@ -624,7 +598,7 @@ pnpm e2e:smoke
 
 ## Reference Implementation
 
-The `todo-plugin` package is your starting point and serves as a complete reference implementation. Study it to understand:
+The `plugin` package is your starting point and serves as a complete reference implementation. Study it to understand:
 - Database schema definition
 - Backend API endpoints
 - Client-side React components
@@ -632,7 +606,7 @@ The `todo-plugin` package is your starting point and serves as a complete refere
 - Route configuration
 - SSR and meta generation
 
-Modify the `todo-plugin` to build your own plugin, then publish it to npm under your own account.
+Modify the `plugin` to build your own plugin, then publish it to npm under your own account.
 
 ## License
 
