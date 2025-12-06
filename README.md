@@ -490,6 +490,8 @@ export const getStackClient = (queryClient: QueryClient) => {
 
 ### Step 10: Build and Publish
 
+Before publishing, make sure everything is working:
+
 ```bash
 # Build your plugin
 pnpm --filter @your-username/your-plugin-name build
@@ -500,10 +502,43 @@ pnpm --filter @your-username/your-plugin-name typecheck
 # Run linting
 pnpm --filter @your-username/your-plugin-name lint
 
+# Run unit tests
+pnpm --filter @your-username/your-plugin-name test
+
+# Run e2e tests
+pnpm e2e:smoke
+```
+
+**Manual Publishing:**
+
+```bash
 # Publish to npm (make sure you're logged in: npm login)
 cd packages/plugin
 npm publish --access public
 ```
+
+**Automated Publishing with GitHub Actions:**
+
+This repository includes a GitHub Actions workflow that automatically publishes your plugin to npm when you create a GitHub release.
+
+1. **Update the version** in `packages/plugin/package.json`:
+   ```json
+   {
+     "version": "1.0.0"
+   }
+   ```
+
+2. **Create a GitHub release** with a tag matching the version (e.g., `v1.0.0`):
+   - Go to your repository on GitHub
+   - Click "Releases" → "Create a new release"
+   - Create a new tag (e.g., `v1.0.0`)
+   - The tag version must match the `package.json` version exactly
+
+3. **The workflow will automatically**:
+   - Build the project
+   - Verify the tag matches the package version
+   - Publish to npm
+
 
 ## Commands
 
@@ -513,6 +548,7 @@ npm publish --access public
 - `pnpm dev` - Start development servers in watch mode
 - `pnpm lint` - Lint all packages
 - `pnpm typecheck` - Type check all packages
+- `pnpm test` - Run unit tests for all packages
 - `pnpm e2e:smoke` - Run end-to-end smoke tests
 - `pnpm format` - Format code with Prettier
 
@@ -572,7 +608,13 @@ The project uses Tailwind CSS v4. Plugin styles are automatically included when 
 
 ### Unit Tests
 
-Your plugin includes unit tests using Vitest:
+Your plugin includes unit tests using Vitest. Run tests for all packages:
+
+```bash
+pnpm test
+```
+
+Or run tests for a specific package:
 
 ```bash
 pnpm --filter @your-username/your-plugin-name test
@@ -580,10 +622,22 @@ pnpm --filter @your-username/your-plugin-name test
 
 ### E2E Tests
 
-End-to-end tests are located in the `e2e/` directory and use Playwright:
+End-to-end tests are located in the `e2e/` directory and use Playwright. Run the smoke tests:
 
 ```bash
 pnpm e2e:smoke
+```
+
+This command will:
+- Build all packages
+- Start the example Next.js application
+- Run Playwright tests against the running application
+
+For interactive debugging, you can run the Playwright UI:
+
+```bash
+cd e2e
+pnpm e2e:ui
 ```
 
 ## Project Structure Best Practices
@@ -607,11 +661,3 @@ The `plugin` package is your starting point and serves as a complete reference i
 - SSR and meta generation
 
 Modify the `plugin` to build your own plugin, then publish it to npm under your own account.
-
-## License
-
-[Add your license here]
-
-## Contributing
-
-[Add contribution guidelines here]
