@@ -233,6 +233,9 @@ importers:
       '@workspace/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
+      '@workspace/ui':
+        specifier: workspace:*
+        version: link:../ui
       eslint:
         specifier: ^9.32.0
         version: 9.39.1(jiti@2.6.1)

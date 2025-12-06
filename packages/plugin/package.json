@@ -1,6 +1,6 @@
 {
     "name": "@btst/todo-plugin",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "type": "module",
     "repository": {
         "type": "git",
@@ -39,7 +39,7 @@
     "dependencies": {
     },
     "peerDependencies": {
-        "@btst/stack": "catalog:",
+        "@btst/stack": ">=1.1.0",
         "@btst/yar": "^1.1.1",
         "@radix-ui/react-checkbox": ">=1.0.0",
         "@radix-ui/react-label": ">=2.0.0",
@@ -61,6 +61,7 @@
         "@types/react-dom": "^19.2.1",
         "@workspace/eslint-config": "workspace:*",
         "@workspace/typescript-config": "workspace:*",
+        "@workspace/ui": "workspace:*",
         "@vitest/ui": "^2.1.8",
         "eslint": "^9.32.0",
         "rollup-plugin-preserve-directives": "^0.4.0",
